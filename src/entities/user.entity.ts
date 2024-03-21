@@ -21,6 +21,15 @@ export class User {
   @Property()
   lastName?: string;
 
+  @Property()
+  phoneNumber?: string;
+
+  @Property()
+  isVerifiedEmail!: boolean;
+
+  @Property()
+  refreshToken?: string;
+
   constructor(
     username: string,
     email: string,

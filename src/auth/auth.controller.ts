@@ -3,9 +3,11 @@ import {
   Post,
   Body,
   BadRequestException,
-  BadGatewayException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { SignupDto } from 'src/dtos/signup.dto';
+import { LoginDto } from 'src/dtos/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -14,23 +16,10 @@ export class AuthController {
   @Post('signup')
   async signUp(
     @Body()
-    body: {
-      username: string;
-      password: string;
-      email: string;
-      firstName?: string;
-      lastName?: string;
-    },
+    signUpDto: SignupDto,
   ) {
-    const { username, password, email, firstName, lastName } = body;
     try {
-      return await this.authService.signUp({
-        username,
-        password,
-        email,
-        firstName,
-        lastName,
-      });
+      return await this.authService.signUp(signUpDto);
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException(error.message);
@@ -38,5 +27,14 @@ export class AuthController {
         throw new BadRequestException('Something went wrong!');
       }
     }
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    const token = await this.authService.login(loginDto);
+    if (!token) {
+      throw new UnauthorizedException('Invalid username or password');
+    }
+    return { access_token: token };
   }
 }
