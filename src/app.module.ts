@@ -26,8 +26,7 @@ import { GenresModule } from './modules/genres/genres.module';
     }),
     AuthModule,
     JwtModule.register({
-      secret: '12213',
-      secretOrPrivateKey: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '14d' },
     }),
     GenresModule,
