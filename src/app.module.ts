@@ -5,9 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from './config/config.module';
 import { JwtMiddleware } from './middlewares/jwt.middleware';
+import { GenresModule } from './modules/genres/genres.module';
 
 @Module({
   imports: [
@@ -29,12 +30,21 @@ import { JwtMiddleware } from './middlewares/jwt.middleware';
       secretOrPrivateKey: process.env.JWT_SECRET,
       signOptions: { expiresIn: '14d' },
     }),
+    GenresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).exclude('/auth').forRoutes('*');
+    const excludedRoutes = [
+      '/auth/refresh-token',
+      '/auth/login',
+      '/auth/signup',
+    ];
+    consumer
+      .apply(JwtMiddleware)
+      .exclude(...excludedRoutes)
+      .forRoutes('*');
   }
 }

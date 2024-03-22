@@ -7,7 +7,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/core';
 import * as bcrypt from 'bcryptjs';
 
-import { User } from '../entities/user.entity';
+import { User } from '../../entities/user.entity';
 import { SignupDto, LoginDto, RefreshTokenDto } from 'src/dtos';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
