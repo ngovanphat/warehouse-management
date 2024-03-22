@@ -1,12 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { JwtModule } from '@nestjs/jwt';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from './config/config.module';
+import { JwtMiddleware } from './middlewares/jwt.middleware';
+
 @Module({
   imports: [
     ConfigModule,
@@ -24,10 +26,15 @@ import { ConfigModule } from './config/config.module';
     AuthModule,
     JwtModule.register({
       secret: '12213',
+      secretOrPrivateKey: process.env.JWT_SECRET,
       signOptions: { expiresIn: '14d' },
     }),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware).exclude('/auth').forRoutes('*');
+  }
+}

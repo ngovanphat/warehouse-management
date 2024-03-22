@@ -15,19 +15,19 @@ export class User {
   @Property()
   password!: string;
 
-  @Property()
+  @Property({ nullable: true, name: 'first_name' })
   firstName?: string;
 
-  @Property()
+  @Property({ nullable: true, name: 'last_name' })
   lastName?: string;
 
-  @Property()
+  @Property({ nullable: true, name: 'phone_number' })
   phoneNumber?: string;
 
-  @Property()
+  @Property({ nullable: true, name: 'is_verified_email' })
   isVerifiedEmail!: boolean;
 
-  @Property()
+  @Property({ nullable: true, name: 'refresh_token' })
   refreshToken?: string;
 
   constructor(

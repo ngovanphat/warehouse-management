@@ -1,12 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/core';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../entities/user.entity';
-import { SignupDto } from 'src/dtos/signup.dto';
+import { SignupDto, LoginDto, RefreshTokenDto } from 'src/dtos';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from 'src/dtos/login.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -15,6 +18,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async signUp({
@@ -50,7 +54,9 @@ export class AuthService {
     return newUser;
   }
 
-  async login(loginDto: LoginDto): Promise<string | null> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string } | null> {
     const user = await this.userRepository.findOne({
       username: loginDto.username,
     });
@@ -64,11 +70,62 @@ export class AuthService {
     if (!isPasswordValid) {
       return null;
     }
-    return this.generateJwtToken(user);
+    const accessToken = await this.generateJwtToken(user);
+    const refreshToken = this.generateRefreshToken();
+    const result = await this.userRepository.nativeUpdate(
+      {
+        id: user.id,
+      },
+      { refreshToken },
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<string | null> {
+    // Validate the refresh token from the database
+    const user = await this.userRepository.findOne({
+      refreshToken: refreshTokenDto.refreshToken,
+    });
+    if (!user) {
+      return null;
+    }
+
+    // Verify that the provided access token matches the stored access token
+    const payload = this.jwtService.verify(refreshTokenDto.accessToken, {
+      secret: this.getJwtSecret(),
+    });
+    if (payload.sub !== user.id) {
+      throw new UnauthorizedException('Invalid access token');
+    }
+
+    // Generate a new access token
+    const accessToken = this.generateJwtToken(user);
+    return accessToken;
   }
 
   private generateJwtToken(user: User): string {
     const payload = { username: user.username, sub: user.id };
-    return this.jwtService.sign(payload, '12213', { expiresIn: '14d' });
+    return this.jwtService.sign(payload, {
+      expiresIn: '14d',
+      secret: this.getJwtSecret(),
+    });
+  }
+
+  private generateRefreshToken(): string {
+    const refreshTokenLength = 20;
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let refreshToken = '';
+    for (let i = 0; i < refreshTokenLength; i++) {
+      refreshToken += characters.charAt(
+        Math.floor(Math.random() * characters.length),
+      );
+    }
+    return refreshToken;
+  }
+
+  private getJwtSecret(): string {
+    return this.configService.get<string>('JWT_SECRET');
   }
 }

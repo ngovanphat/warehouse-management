@@ -6,8 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDto } from 'src/dtos/signup.dto';
-import { LoginDto } from 'src/dtos/login.dto';
+import { SignupDto, LoginDto, RefreshTokenDto } from 'src/dtos';
 
 @Controller('auth')
 export class AuthController {
@@ -31,10 +30,28 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const token = await this.authService.login(loginDto);
-    if (!token) {
-      throw new UnauthorizedException('Invalid username or password');
+    try {
+      const { accessToken, refreshToken } =
+        await this.authService.login(loginDto);
+      if (!accessToken || !refreshToken) {
+        throw new UnauthorizedException('Invalid username or password');
+      }
+      return { accessToken, refreshToken };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.message);
+      } else {
+        throw new BadRequestException('Something went wrong!');
+      }
     }
-    return { access_token: token };
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    const accessToken = await this.authService.refreshToken(refreshTokenDto);
+    if (!accessToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    return { accessToken };
   }
 }
