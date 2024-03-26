@@ -4,15 +4,58 @@ import {
   Body,
   BadRequestException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+
+import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+
 import { SignupDto, LoginDto, RefreshTokenDto } from 'src/dtos';
+import { User } from 'src/entities';
+
+import { AuthService } from './auth.service';
 
 @Controller('auth')
+@ApiTags('Authentication')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @ApiBody({ description: 'User signup details', type: SignupDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User signed up successfully',
+    schema: {
+      properties: {
+        id: {
+          type: 'number',
+        },
+        username: {
+          type: 'string',
+        },
+        email: {
+          type: 'string',
+        },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        isVerifiedEmail: { type: 'boolean' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+    schema: {
+      properties: {
+        message: { type: 'string', example: 'Invalid email format' },
+        error: { type: 'string', example: 'Bad Request' },
+        statusCode: { type: 'number', example: 400 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Username or email already exists',
+  })
   async signUp(
     @Body()
     signUpDto: SignupDto,
@@ -29,6 +72,23 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    schema: {
+      properties: {
+        accessToken: {
+          type: 'string',
+        },
+        refreshToken: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid username or password' })
+  @ApiResponse({ status: 500, description: 'Something went wrong!' })
   async login(@Body() loginDto: LoginDto) {
     try {
       const { accessToken, refreshToken } =
@@ -47,11 +107,37 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Refresh token successful',
+    schema: {
+      properties: {
+        accessToken: {
+          type: 'string',
+          example:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid refresh token',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Server error',
+  })
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-    const accessToken = await this.authService.refreshToken(refreshTokenDto);
-    if (!accessToken) {
-      throw new UnauthorizedException('Invalid refresh token');
+    try {
+      const accessToken = await this.authService.refreshToken(refreshTokenDto);
+      if (!accessToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      return { accessToken };
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong!');
     }
-    return { accessToken };
   }
 }

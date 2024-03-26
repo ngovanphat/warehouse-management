@@ -7,29 +7,79 @@ import {
   Param,
   Put,
   Delete,
+  InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { GenresService } from './genres.service';
+
+import {
+  ApiTags,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+
 import { Genres } from 'src/entities';
+import { GenresDto, CreateGenreDto } from 'src/dtos';
+import { GenresService } from './genres.service';
 
 @Controller('genres')
+@ApiTags('Genres')
+@ApiBearerAuth()
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
   @Get()
-  async findAll(): Promise<Genres[]> {
-    return this.genresService.findAll();
+  @ApiResponse({
+    status: 200,
+    description: 'List of genres retrieved successfully',
+    type: GenresDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Server error' })
+  async findAll(): Promise<GenresDto[]> {
+    try {
+      return this.genresService.findAll();
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Genres> {
-    return this.genresService.findOne(id);
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({
+    status: 200,
+    description: 'Genre retrieved successfully',
+    type: GenresDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Genre not found' })
+  @ApiResponse({ status: 500, description: 'Server error' })
+  async findOne(@Param('id') id: string): Promise<GenresDto> {
+    try {
+      return this.genresService.findOne(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
   }
 
   @Post()
-  async create(@Body() data: Partial<Genres>): Promise<Genres> {
-    return this.genresService.create(data);
+  @ApiBody({ type: CreateGenreDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Genre created successfully',
+    type: GenresDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Server error' })
+  async create(@Body() data: Partial<Genres>): Promise<GenresDto> {
+    try {
+      return this.genresService.create(data);
+    } catch (error) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
   }
-
   @Put(':id')
   async update(
     @Param('id') id: string,
