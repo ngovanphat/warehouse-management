@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   InternalServerErrorException,
   NotFoundException,
@@ -66,6 +67,15 @@ export class ContactController {
     } catch (e) {
       if (e instanceof NotFoundException)
         throw new NotFoundException(e.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<void> {
+    try {
+      await this.contactService.remove(id);
+    } catch (e) {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
