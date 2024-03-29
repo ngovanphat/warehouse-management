@@ -11,6 +11,7 @@ import { JwtMiddleware } from './middlewares/jwt.middleware';
 import { GenresModule } from './modules/genres/genres.module';
 import { ClustersModule } from './modules/clusters/clusters.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { CustomerModule } from './modules/customer/customer.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ContactModule } from './modules/contact/contact.module';
     GenresModule,
     ClustersModule,
     ContactModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
