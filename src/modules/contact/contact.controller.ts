@@ -9,7 +9,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { ContactDto, CreateContactDto, UpdateContactDto } from 'src/dtos';
 
@@ -38,6 +38,24 @@ export class ContactController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({
+    status: 200,
+    description: 'Contact retrieved successfully',
+    type: ContactDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Contact not found!',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Something went wrong!',
+  })
   async findOne(@Param('id') id: string): Promise<ContactDto> {
     try {
       return this.contactService.findOne(id);
@@ -47,8 +65,14 @@ export class ContactController {
       throw new InternalServerErrorException('Something went wrong');
     }
   }
-
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'Contact created successfully',
+    type: ContactDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Something went wrong!' })
   async create(@Body() data: CreateContactDto): Promise<ContactDto> {
     try {
       return this.contactService.create(data);
