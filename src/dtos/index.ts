@@ -4,3 +4,6 @@ export * from './refresh-token.dto';
 export * from './create-genres.dto';
 export * from './update-genres.dto';
 export * from './genres.dto';
+export * from './cluster.dto';
+export * from './create-cluster.dto';
+export * from './update-cluster.dto';

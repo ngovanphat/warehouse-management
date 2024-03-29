@@ -9,6 +9,7 @@ import {
   Delete,
   InternalServerErrorException,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 
 import {
@@ -17,10 +18,11 @@ import {
   ApiBody,
   ApiParam,
   ApiBearerAuth,
+  ApiOperation,
 } from '@nestjs/swagger';
 
 import { Genres } from 'src/entities';
-import { GenresDto, CreateGenreDto } from 'src/dtos';
+import { GenresDto, CreateGenreDto, UpdateGenreDto } from 'src/dtos';
 import { GenresService } from './genres.service';
 
 @Controller('genres')
@@ -81,16 +83,60 @@ export class GenresController {
     }
   }
   @Put(':id')
+  @ApiOperation({ summary: 'Update genre by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Genre ID',
+    type: 'string',
+    required: true,
+  })
+  @ApiBody({ type: UpdateGenreDto })
+  @ApiResponse({
+    status: 200,
+    description: 'The genre has been successfully updated.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid genre data provided.' })
+  @ApiResponse({ status: 404, description: 'Genre not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   async update(
     @Param('id') id: string,
     @Body() data: Partial<Genres>,
   ): Promise<Genres> {
-    const isUpdate = await this.genresService.update(id, data);
-    return { id, ...data } as Genres;
+    try {
+      const isUpdate = await this.genresService.update(id, data);
+      return { id, ...data } as Genres;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Genre not found.');
+      } else {
+        throw new InternalServerErrorException('Internal server error.');
+      }
+    }
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete genre by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Genre ID',
+    type: 'string',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The genre has been successfully deleted.',
+  })
+  @ApiResponse({ status: 404, description: 'Genre not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   async remove(@Param('id') id: string): Promise<number> {
-    return this.genresService.remove(id);
+    try {
+      return await this.genresService.remove(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Genre not found.');
+      } else {
+        throw new InternalServerErrorException('Internal server error.');
+      }
+    }
   }
 }
