@@ -1,4 +1,10 @@
-import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  InternalServerErrorException,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
 import { CustomerDto } from 'src/dtos';
@@ -28,6 +34,17 @@ export class CustomerController {
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException('Something went wrong!');
+    }
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<CustomerDto> {
+    try {
+      return await this.customerService.findOne(id);
+    } catch (e) {
+      if (e instanceof NotFoundException)
+        throw new NotFoundException(e.message);
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 }
