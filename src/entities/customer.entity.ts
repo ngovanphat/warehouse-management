@@ -7,9 +7,13 @@ export class Customer {
   @PrimaryKey()
   id!: string;
 
-  @ManyToOne(() => Contact)
+  @ManyToOne(() => Contact, {
+    referenceColumnName: 'id',
+    joinColumn: 'contact_id',
+  })
   contact!: Contact;
 
+  @Property()
   @Property()
   debt!: number;
 }
