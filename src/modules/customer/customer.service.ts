@@ -1,5 +1,5 @@
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { EntityRepository, NotFoundError } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
 import { CustomerDto } from 'src/dtos';
 import { Contact, Customer } from 'src/entities';
@@ -28,6 +28,7 @@ export class CustomerService {
       .where({ id: { $eq: id } }, '$and')
       .select(['c.*', 'contact.*'])
       .getSingleResult();
+    if (!customer) throw new NotFoundError('Customer not found');
 
     return customer;
   }

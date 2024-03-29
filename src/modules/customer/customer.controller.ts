@@ -5,9 +5,10 @@ import {
   NotFoundException,
   Param,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
 import { CustomerDto } from 'src/dtos';
+import { NotFoundError } from '@mikro-orm/core';
 
 @Controller('customer')
 @ApiTags('Customer')
@@ -37,13 +38,33 @@ export class CustomerController {
   }
 
   @Get(':id')
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Customer retrieved successfully',
+    type: CustomerDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Customer not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Something went wrong!',
+  })
   async findOne(@Param('id') id: string): Promise<CustomerDto> {
     try {
       return await this.customerService.findOne(id);
     } catch (e) {
       console.log(e);
-      if (e instanceof NotFoundException)
-        throw new NotFoundException(e.message);
+      if (e instanceof NotFoundError) throw new NotFoundException(e.message);
       throw new InternalServerErrorException('Something went wrong');
     }
   }
