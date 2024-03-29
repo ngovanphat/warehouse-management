@@ -114,6 +114,25 @@ export class ContactController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete contact by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Contact ID',
+    type: 'string',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'This contact has been successfully deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Contact not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Something went wrong!',
+  })
   async delete(@Param('id') id: string): Promise<void> {
     try {
       await this.contactService.remove(id);
