@@ -9,7 +9,13 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { ContactDto, CreateContactDto, UpdateContactDto } from 'src/dtos';
 
@@ -82,6 +88,18 @@ export class ContactController {
   }
 
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update contact by ID',
+  })
+  @ApiParam({ name: 'id', type: 'string' })
+  @ApiResponse({
+    status: 200,
+    description: 'Contact updated successfully',
+    type: ContactDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Contact not found!' })
+  @ApiResponse({ status: 500, description: 'Something went wrong!' })
   async update(
     @Param('id') id: string,
     @Body() data: UpdateContactDto,
