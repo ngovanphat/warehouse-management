@@ -10,3 +10,6 @@ export * from './update-cluster.dto';
 export * from './contact.dto';
 export * from './create-contact.dto';
 export * from './update-contact.dto';
+export * from './customer.dto';
+export * from './create-customer.dto';
+export * from './update-customer.dto';
