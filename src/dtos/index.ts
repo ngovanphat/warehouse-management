@@ -7,3 +7,6 @@ export * from './genres.dto';
 export * from './cluster.dto';
 export * from './create-cluster.dto';
 export * from './update-cluster.dto';
+export * from './contact.dto';
+export * from './create-contact.dto';
+export * from './update-contact.dto';
