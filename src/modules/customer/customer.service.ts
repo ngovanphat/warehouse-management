@@ -23,10 +23,12 @@ export class CustomerService {
 
   async findOne(id: string): Promise<CustomerDto> {
     const customer = await this.customerRepository
-      .createQueryBuilder('contact')
+      .createQueryBuilder('c')
       .leftJoin('c.contact', 'contact')
-      .andWhere('c.id = :id', [id])
+      .where({ id: { $eq: id } }, '$and')
+      .select(['c.*', 'contact.*'])
       .getSingleResult();
+
     return customer;
   }
 }

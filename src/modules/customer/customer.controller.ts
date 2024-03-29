@@ -32,7 +32,6 @@ export class CustomerController {
       const customers = await this.customerService.findAll();
       return customers;
     } catch (e) {
-      console.log(e);
       throw new InternalServerErrorException('Something went wrong!');
     }
   }
@@ -42,6 +41,7 @@ export class CustomerController {
     try {
       return await this.customerService.findOne(id);
     } catch (e) {
+      console.log(e);
       if (e instanceof NotFoundException)
         throw new NotFoundException(e.message);
       throw new InternalServerErrorException('Something went wrong');
