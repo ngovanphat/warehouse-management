@@ -6,10 +6,11 @@ import {
   Param,
   Post,
   Body,
+  Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
-import { CustomerDto, CreateCustomerDto } from 'src/dtos';
+import { CustomerDto, CreateCustomerDto, UpdateCustomerDto } from 'src/dtos';
 import { NotFoundError } from '@mikro-orm/core';
 
 @Controller('customer')
@@ -86,6 +87,19 @@ export class CustomerController {
       return this.customerService.create(data);
     } catch (e) {
       throw new InternalServerErrorException('Something went wrong!');
+    }
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() data: UpdateCustomerDto,
+  ): Promise<CustomerDto> {
+    try {
+      return this.customerService.update(id, data);
+    } catch (e) {
+      if (e instanceof NotFoundError) throw new NotFoundException(e.message);
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 }
