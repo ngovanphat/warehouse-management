@@ -1,6 +1,10 @@
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { Contact } from 'src/entities';
 
 @Injectable()
@@ -21,6 +25,11 @@ export class ContactService {
   }
 
   async create(data: Partial<Contact>): Promise<Contact> {
+    const isContactExisted = await this.contactRepository.findOne({
+      phoneNumber: data.phoneNumber,
+    });
+    if (isContactExisted)
+      throw new ConflictException('Contact is already existed!');
     const contact = new Contact({ ...data });
     await this.contactRepository.insert(contact);
     return contact;

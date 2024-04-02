@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  ConflictException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -83,6 +84,8 @@ export class ContactController {
     try {
       return this.contactService.create(data);
     } catch (e) {
+      if (e instanceof ConflictException)
+        throw new ConflictException(e.message);
       throw new InternalServerErrorException('Something went wrong');
     }
   }

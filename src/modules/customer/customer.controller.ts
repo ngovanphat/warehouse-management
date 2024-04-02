@@ -4,10 +4,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Post,
+  Body,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
-import { CustomerDto } from 'src/dtos';
+import { CustomerDto, CreateCustomerDto } from 'src/dtos';
 import { NotFoundError } from '@mikro-orm/core';
 
 @Controller('customer')
@@ -66,6 +68,15 @@ export class CustomerController {
       console.log(e);
       if (e instanceof NotFoundError) throw new NotFoundException(e.message);
       throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  @Post()
+  async create(@Body() data: CreateCustomerDto): Promise<CustomerDto> {
+    try {
+      return this.customerService.create(data);
+    } catch (e) {
+      throw new InternalServerErrorException('Something went wrong!');
     }
   }
 }
