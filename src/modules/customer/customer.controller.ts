@@ -72,6 +72,15 @@ export class CustomerController {
   }
 
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'Customer created successfully',
+    type: CustomerDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 409, description: 'Customer is already existed' })
+  @ApiResponse({ status: 500, description: 'Something went wrong' })
   async create(@Body() data: CreateCustomerDto): Promise<CustomerDto> {
     try {
       return this.customerService.create(data);

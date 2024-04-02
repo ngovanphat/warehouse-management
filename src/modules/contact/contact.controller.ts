@@ -78,7 +78,9 @@ export class ContactController {
     description: 'Contact created successfully',
     type: ContactDto,
   })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 409, description: 'Contact is already existed' })
   @ApiResponse({ status: 500, description: 'Something went wrong!' })
   async create(@Body() data: CreateContactDto): Promise<ContactDto> {
     try {
