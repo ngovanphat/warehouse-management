@@ -32,6 +32,9 @@ export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all genres',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of genres retrieved successfully',
@@ -49,6 +52,9 @@ export class GenresController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a genre by ID',
+  })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({
     status: 200,
@@ -67,6 +73,9 @@ export class GenresController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a genre',
+  })
   @ApiBody({ type: CreateGenreDto })
   @ApiResponse({
     status: 201,

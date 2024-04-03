@@ -78,7 +78,7 @@ export class CustomerService {
     const { debt, ...contactInfo } = data;
     try {
       await this.em.begin();
-      if (debt)
+      if (typeof debt !== 'undefined')
         await this.customerRepository.nativeUpdate(id, {
           debt,
         });

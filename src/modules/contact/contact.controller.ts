@@ -27,6 +27,9 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all contacts',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of contacts retrieved successfully',
@@ -45,6 +48,9 @@ export class ContactController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a contact by ID',
+  })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({
     status: 200,
@@ -73,6 +79,9 @@ export class ContactController {
     }
   }
   @Post()
+  @ApiOperation({
+    summary: 'Creata a contact',
+  })
   @ApiResponse({
     status: 201,
     description: 'Contact created successfully',

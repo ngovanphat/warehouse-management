@@ -7,7 +7,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 
-import { ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiBody, ApiOperation } from '@nestjs/swagger';
 
 import { SignupDto, LoginDto, RefreshTokenDto } from 'src/dtos';
 import { User } from 'src/entities';
@@ -20,6 +20,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @ApiOperation({
+    summary: 'Create a account ',
+  })
   @ApiBody({ description: 'User signup details', type: SignupDto })
   @ApiResponse({
     status: 201,
@@ -72,6 +75,9 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({
+    summary: 'Login with username and password',
+  })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 200,
@@ -107,6 +113,9 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @ApiOperation({
+    summary: 'Renew access token with refresh token',
+  })
   @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({
     status: 200,

@@ -29,6 +29,9 @@ export class ClustersController {
   constructor(private readonly clusterService: ClusterService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all clusters',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of clusters retrieved successfully',
@@ -47,6 +50,9 @@ export class ClustersController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a cluster by ID',
+  })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({
     status: 200,
@@ -68,11 +74,17 @@ export class ClustersController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a cluster',
+  })
   async create(@Body() clusterData: CreateClusterDto): Promise<ClusterDto> {
     return await this.clusterService.create(clusterData);
   }
 
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update a cluster by ID',
+  })
   async update(
     @Param('id') id: string,
     @Body() clusterData: UpdateClusterDto,
@@ -81,6 +93,9 @@ export class ClustersController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete a cluster by ID',
+  })
   async remove(@Param('id') id: string): Promise<void> {
     await this.clusterService.remove(id);
   }

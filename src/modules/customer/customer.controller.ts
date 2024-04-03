@@ -8,7 +8,13 @@ import {
   Body,
   Put,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { CustomerService } from './customer.service';
 import { CustomerDto, CreateCustomerDto, UpdateCustomerDto } from 'src/dtos';
 import { NotFoundError } from '@mikro-orm/core';
@@ -20,6 +26,9 @@ export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all customers',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all customers retrieved successfully',
@@ -41,6 +50,9 @@ export class CustomerController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a customer by ID',
+  })
   @ApiParam({
     name: 'id',
     type: 'string',
@@ -73,6 +85,9 @@ export class CustomerController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a customer',
+  })
   @ApiResponse({
     status: 201,
     description: 'Customer created successfully',
@@ -91,6 +106,29 @@ export class CustomerController {
   }
 
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update customer by ID',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Customer not found!',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Somthing went wrong',
+  })
   async update(
     @Param('id') id: string,
     @Body() data: UpdateCustomerDto,
