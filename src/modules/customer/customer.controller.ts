@@ -7,6 +7,7 @@ import {
   Post,
   Body,
   Put,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -137,6 +138,15 @@ export class CustomerController {
       return this.customerService.update(id, data);
     } catch (e) {
       if (e instanceof NotFoundError) throw new NotFoundException(e.message);
+      throw new InternalServerErrorException('Something went wrong');
+    }
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<void> {
+    try {
+      await this.customerService.remove(id);
+    } catch (e) {
       throw new InternalServerErrorException('Something went wrong');
     }
   }

@@ -105,4 +105,16 @@ export class CustomerService {
       throw e;
     }
   }
+
+  async remove(id: string): Promise<number> {
+    try {
+      await this.em.begin();
+      const numberOfRow = await this.customerRepository.nativeDelete(id);
+      await this.em.commit();
+      return numberOfRow;
+    } catch (e) {
+      await this.em.rollback();
+      throw e;
+    }
+  }
 }
